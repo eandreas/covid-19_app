@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import dash
+import dash_daq as daq
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.express as px
 import pandas as pd
+import datetime as dt
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -47,7 +49,7 @@ CANTONS = {
     "24": "VD",
     "26": "VS",
     "27": "ZG",
-    "27": "ZH"
+    "28": "ZH"
 }
 
 def add_diff_col(df, col, new_col):
@@ -124,8 +126,24 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
     dcc.Graph(
         id='example-graph',
         figure=fig
+    ),
+
+    dcc.RangeSlider(
+        id='date-range-slider',
+        min=df_ch['date'].min().value,
+        max=df_ch['date'].max().value,
+        step=1,
+        value=[df_ch['date'].min().value, df_ch['date'].max().value],
+        allowCross=False,
+        updatemode='drag'
     )
 ])
+
+#@app.callback(
+#    dash.dependencies.Output('output-container-range-slider', 'children'),
+#    [dash.dependencies.Input('my-range-slider', 'value')])
+#def update_output(value):
+#    return 'You have selected "{}"'.format(value)
 
 if __name__ == '__main__':
     # True for hot reloading
