@@ -66,4 +66,5 @@ def get_CH_data_total():
     df_ch = df_ch.groupby('date').sum()
     df_ch.index.name = 'date'
     df_ch.reset_index(level=0, inplace=True)
+
     return df_ch
