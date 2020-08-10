@@ -92,7 +92,7 @@ def update_figure(date_range_slider):
         Input("date-range-slider", "value")
     ],
 )
-def update_figure(date_range_slider):
+def update_zoomed_figure(date_range_slider):
 
     start_date = pd.to_datetime(date_range_slider[0], unit = 'ns')
     end_date = pd.to_datetime(date_range_slider[1], unit = 'ns')
