@@ -72,7 +72,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
 )
 def update_figure(date_range_slider):
     cols = []
-    for i in range(int(df['date'].min().value), int(df['date'].max().value), int(864e11)):
+    for i in range(df['date'].min().value, df['date'].max().value + int(864e11), int(864e11)):
         if i >= int(date_range_slider[0]) and i <= int(date_range_slider[1]):
             cols.append('indianred')
         else:
