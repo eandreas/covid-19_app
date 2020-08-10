@@ -23,6 +23,7 @@ df = df[df['date'] >= start_date]
 
 # prepare figure for daily confirmed cases
 fig_new_conf = px.bar(df, x="date", y=["new_conf"], barmode="group")
+fig_new_conf.update_layout(showlegend=False)
 fig_new_conf.update_layout(plot_bgcolor=colors['background'], paper_bgcolor=colors['background'], font_color=colors['text'])
 fig_new_conf.update_traces(marker_color='indianred', marker_line_color='rgb(8,48,107)',
                   marker_line_width=0, opacity=0.6)
@@ -30,6 +31,7 @@ fig_new_conf.update_layout(title_text='Daily confirmed cases - Switzerland')
 
 # prepare figure for daily confirmed cases (zoomed)
 fig_new_conf_zoomed = px.bar(df, x="date", y=["new_conf"], barmode="group")
+fig_new_conf_zoomed.update_layout(showlegend=False)
 fig_new_conf_zoomed.update_layout(plot_bgcolor=colors['background'], paper_bgcolor=colors['background'], font_color=colors['text'])
 fig_new_conf_zoomed.update_traces(marker_color='rgb(158,202,225)', marker_line_color='rgb(8,48,107)',
                   marker_line_width=0, opacity=0.6)
@@ -79,6 +81,7 @@ def update_figure(date_range_slider):
             cols.append('lightsalmon')
 
     fig_new_conf = px.bar(df, x="date", y=["new_conf"], barmode="group")
+    fig_new_conf.update_layout(showlegend=False)
     fig_new_conf.update_layout(plot_bgcolor=colors['background'], paper_bgcolor=colors['background'], font_color=colors['text'])
     fig_new_conf.update_traces(marker_color=cols, marker_line_color='rgb(8,48,107)',
                   marker_line_width=0, opacity=0.6)
@@ -101,6 +104,7 @@ def update_zoomed_figure(date_range_slider):
     df_zoomed = df.loc[mask]
     
     fig_new_conf_zoomed = px.bar(df_zoomed, x="date", y=["new_conf"], barmode="group")
+    fig_new_conf_zoomed.update_layout(showlegend=False)
     fig_new_conf_zoomed.update_layout(plot_bgcolor=colors['background'], paper_bgcolor=colors['background'], font_color=colors['text'])
     fig_new_conf_zoomed.update_traces(marker_color='rgb(158,202,225)', marker_line_color='rgb(8,48,107)',
                   marker_line_width=0, opacity=0.6)
