@@ -50,7 +50,7 @@ app.layout = html.Div([
         min=df['date'].min().value,
         max=df['date'].max().value,
         step=DAY_IN_NS,
-        value=[df['date'].min().value, df['date'].max().value],
+        value=[pd.to_datetime('20200601', format='%Y%m%d').value, df['date'].max().value],
         allowCross=False,
         updatemode='drag'
     ),
@@ -105,6 +105,8 @@ def update_zoomed_figure(date_range_slider):
                   marker_line_width=0, opacity=0.6)
     fig_new_conf_zoomed.update_layout(title_text='Daily confirmed cases (zoomed) - Switzerland')
     return fig_new_conf_zoomed
+
+print(pd.to_datetime('20200601', format='%Y%m%d'))
 
 if __name__ == '__main__':
     # True for hot reloading
