@@ -1,3 +1,5 @@
+DAY_IN_NS = int(864e11)
+
 CANTONS = {
     "01": "AG",
     "02": "AI",
