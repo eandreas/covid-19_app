@@ -7,10 +7,11 @@ from dash.dependencies import Input, Output
 import plotly.express as px
 import plotly.subplots as spl
 import pandas as pd
-import datetime as dt
+from datetime import datetime as dt
 from dataloader import get_CH_data_total
 from colors import *
 from constants import *
+from tools import *
 
 #external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 #app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -45,14 +46,26 @@ app.layout = html.Div([
         'COVID-19 Cases and Analysis',
         #style={'textAlign': 'center', 'color': colors['text']}
     ),
+    dcc.DatePickerRange(
+        id='date-range-picker',
+        min_date_allowed=df['date'].min(),
+        max_date_allowed=df['date'].max(),
+        display_format='DD.MM.YYYY',
+        start_date_placeholder_text='DD.MM.YYYY',
+        disabled=True
+    ),
     dcc.RangeSlider(
         id='date-range-slider',
         min=df['date'].min().value,
         max=df['date'].max().value,
         step=DAY_IN_NS,
-        value=[pd.to_datetime('20200601', format='%Y%m%d').value, df['date'].max().value],
+        value=[yyyymmdd2ns('20200601'), df['date'].max().value],
         allowCross=False,
-        updatemode='drag'
+        updatemode='drag',
+        marks = {
+            yyyymmdd2ns('20200601'): '1. Juni'
+        }
+        #persistence=True
     ),
     dcc.Graph(
         id='new_conf',
@@ -62,13 +75,14 @@ app.layout = html.Div([
         id='new_conf_zoomed',
         figure=fig_new_conf_zoomed
     )
-],
-#style={'backgroundColor': colors['background']}
-)
+])
 
-# update new_conf figure
 @app.callback(
-    Output("new_conf", "figure"),
+    [
+        Output("new_conf", "figure"),
+        Output("date-range-picker", "start_date"),
+        Output("date-range-picker", "end_date")
+    ],
     [
         Input("date-range-slider", "value")
     ],
@@ -81,20 +95,16 @@ def update_figure(date_range_slider):
     for i in range(start, end + 1):
         cols[i] = colors['selected_bars']
     fig_new_conf.update_traces(marker_color=cols)
-    return fig_new_conf
+    return fig_new_conf, pd.to_datetime(date_range_slider[0]), pd.to_datetime(date_range_slider[1])
 
-# update new_conf_zoomed figure
 @app.callback(
     Output("new_conf_zoomed", "figure"),
     [
-        Input("date-range-slider", "value")
+        Input("date-range-picker", "start_date"),
+        Input("date-range-picker", "end_date")
     ],
 )
-def update_zoomed_figure(date_range_slider):
-
-    start_date = pd.to_datetime(date_range_slider[0], unit = 'ns')
-    end_date = pd.to_datetime(date_range_slider[1], unit = 'ns')
-    
+def update_zoomed_figure(start_date, end_date):
     mask = (df['date'] >= start_date) & (df['date'] <= end_date)
     df_zoomed = df.loc[mask]
     
@@ -105,8 +115,6 @@ def update_zoomed_figure(date_range_slider):
                   marker_line_width=0, opacity=0.6)
     fig_new_conf_zoomed.update_layout(title_text='Daily confirmed cases (zoomed) - Switzerland')
     return fig_new_conf_zoomed
-
-print(pd.to_datetime('20200601', format='%Y%m%d'))
 
 if __name__ == '__main__':
     # True for hot reloading
