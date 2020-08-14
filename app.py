@@ -6,45 +6,39 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 import plotly.express as px
 import plotly.subplots as spl
+import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime as dt
-from dataloader import get_CH_data_total
+from dataloader import get_data, get_BAG_test_data, stretch_data_frames
 from colors import *
-from constants import *
+from constants import CANTONS, DAY_IN_NS
 from tools import *
+import figure_creator as fc
 
 #external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 #app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-app = dash.Dash()
+app = dash.Dash(__name__)
+#app = dash.Dash()
+app.config['suppress_callback_exceptions'] = True
 
-df = get_CH_data_total()
+df = get_data()
+df_bag_test = get_BAG_test_data()
+df, df_bag_test = stretch_data_frames([df, df_bag_test])
 
-# cut some old date
-start_date = '20190601'
-df = df[df['date'] >= start_date]
+fig_new_conf = fc.get_bar(df.date, df.new_conf)
 
-# prepare figure for daily confirmed cases
-fig_new_conf = px.bar(df, x="date", y=["new_conf"], barmode="group")
-fig_new_conf.update_layout(title_text='Daily confirmed cases - Switzerland')
-fig_new_conf.update_layout(showlegend=False)
-#fig_new_conf.update_layout(plot_bgcolor=colors['background'], paper_bgcolor=colors['background'], font_color=colors['text'])
-#fig_new_conf.update_traces(marker_color='indianred', marker_line_color='rgb(8,48,107)',
-#                  marker_line_width=0, opacity=0.6)
+fig_new_conf_zoomed = fc.get_bar(df.date, df.new_conf, 'Daily confirmed COVID-19 cases - Switzerland')
 
-
-# prepare figure for daily confirmed cases (zoomed)
-fig_new_conf_zoomed = px.bar(df, x="date", y=["new_conf"], barmode="group")
-fig_new_conf_zoomed.update_layout(title_text='Daily confirmed cases (zoomed) - Switzerland')
-fig_new_conf_zoomed.update_layout(showlegend=False)
-#fig_new_conf_zoomed.update_layout(plot_bgcolor=colors['background'], paper_bgcolor=colors['background'], font_color=colors['text'])
-#fig_new_conf_zoomed.update_traces(marker_color='rgb(158,202,225)', marker_line_color='rgb(8,48,107)',
-#                  marker_line_width=0, opacity=0.6)
-
+fig_tests_zoomed = fc.get_tests_plot(
+    df_bag_test.date,
+    df_bag_test.positive,
+    df_bag_test.negative,
+    'Daily PCR-tests and outcome - Switzerland'
+)
 
 app.layout = html.Div([
     html.H1(
         'COVID-19 Cases and Analysis',
-        #style={'textAlign': 'center', 'color': colors['text']}
     ),
     dcc.DatePickerRange(
         id='date-range-picker',
@@ -64,7 +58,7 @@ app.layout = html.Div([
         updatemode='drag',
         marks = {
             yyyymmdd2ns('20200601'): '1. Juni'
-        }
+        },
         #persistence=True
     ),
     dcc.Graph(
@@ -74,9 +68,14 @@ app.layout = html.Div([
     dcc.Graph(
         id='new_conf_zoomed',
         figure=fig_new_conf_zoomed
-    )
+    ),
+    dcc.Graph(
+        id='tests_zoomed',
+        figure=fig_tests_zoomed
+    ),
 ])
 
+# update color dependent on date range slider (selected time window)
 @app.callback(
     [
         Output("new_conf", "figure"),
@@ -98,7 +97,10 @@ def update_figure(date_range_slider):
     return fig_new_conf, pd.to_datetime(date_range_slider[0]), pd.to_datetime(date_range_slider[1])
 
 @app.callback(
-    Output("new_conf_zoomed", "figure"),
+    [
+        Output("new_conf_zoomed", "figure"),
+        Output("tests_zoomed", "figure")
+    ],
     [
         Input("date-range-picker", "start_date"),
         Input("date-range-picker", "end_date")
@@ -107,14 +109,19 @@ def update_figure(date_range_slider):
 def update_zoomed_figure(start_date, end_date):
     mask = (df['date'] >= start_date) & (df['date'] <= end_date)
     df_zoomed = df.loc[mask]
-    
-    fig_new_conf_zoomed = px.bar(df_zoomed, x="date", y=["new_conf"], barmode="group")
-    fig_new_conf_zoomed.update_layout(showlegend=False)
-    fig_new_conf_zoomed.update_layout(plot_bgcolor=colors['background'], paper_bgcolor=colors['background'], font_color=colors['text'])
-    fig_new_conf_zoomed.update_traces(marker_color='rgb(158,202,225)', marker_line_color='rgb(8,48,107)',
-                  marker_line_width=0, opacity=0.6)
-    fig_new_conf_zoomed.update_layout(title_text='Daily confirmed cases (zoomed) - Switzerland')
-    return fig_new_conf_zoomed
+    df_bag_test_zoomed = df_bag_test.loc[mask]
+    fig_new_conf_zoomed = fc.get_bar(
+        df_zoomed.date,
+        df_zoomed.new_conf,
+        'Daily confirmed COVID-19 cases - Switzerland'
+    )
+    fig_tests_zoomed = fc.get_tests_plot(
+        df_bag_test_zoomed.date,
+        df_bag_test_zoomed.positive,
+        df_bag_test_zoomed.negative,
+        'Daily PCR-tests and outcome - Switzerland'
+    )
+    return fig_new_conf_zoomed, fig_tests_zoomed
 
 if __name__ == '__main__':
     # True for hot reloading
