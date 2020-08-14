@@ -4,6 +4,11 @@ URLs = {
     'BAG_test_data': 'https://www.bag.admin.ch/dam/bag/de/dokumente/mt/k-und-i/aktuelle-ausbrueche-pandemien/2019-nCoV/covid-19-basisdaten-labortests.xlsx.download.xlsx/Dashboard_3_COVID19_labtests_positivity.xlsx'
 }
 
+FOLDERS = {
+    'BAG_data': 'data/bag/',
+    'openZH_data': 'data/openZH/'
+}
+
 CANTONS = {
     "01": "AG",
     "02": "AI",

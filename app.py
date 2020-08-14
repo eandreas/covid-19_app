@@ -9,7 +9,7 @@ import plotly.subplots as spl
 import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime as dt
-from dataloader import get_data, get_BAG_test_data, stretch_data_frames
+from dataloader import get_data, get_BAG_test_data, stretch_data_frames, download_BAG_test_data
 from colors import *
 from constants import CANTONS, DAY_IN_NS
 from tools import *
@@ -27,13 +27,28 @@ df, df_bag_test = stretch_data_frames([df, df_bag_test])
 
 fig_new_conf = fc.get_bar(df.date, df.new_conf)
 
-fig_new_conf_zoomed = fc.get_bar(df.date, df.new_conf, 'Daily confirmed COVID-19 cases - Switzerland')
+fig_new_conf_zoomed = fc.get_bar_with_SMA(
+    df.date,
+    df.new_conf,
+    df.date,
+    df.new_conf_SMA_7,
+    'Daily confirmed COVID-19 cases - Switzerland'
+)
 
-fig_tests_zoomed = fc.get_tests_plot(
+fig_tests_zoomed = fc.get_stacked_bar(
     df_bag_test.date,
     df_bag_test.positive,
+    df_bag_test.date,
     df_bag_test.negative,
     'Daily PCR-tests and outcome - Switzerland'
+)
+
+fig_test_pos_rate = fc.get_bar_with_SMA(
+    df_bag_test.date,
+    df_bag_test.pos_rate,
+    df_bag_test.date,
+    df_bag_test.SMA_7,
+    'Positivity rate of PCR-tests - Switzerland'
 )
 
 app.layout = html.Div([
@@ -73,6 +88,10 @@ app.layout = html.Div([
         id='tests_zoomed',
         figure=fig_tests_zoomed
     ),
+    dcc.Graph(
+        id='tests_zoomed_pos_rate',
+        figure=fig_test_pos_rate
+    ),
 ])
 
 # update color dependent on date range slider (selected time window)
@@ -99,7 +118,8 @@ def update_figure(date_range_slider):
 @app.callback(
     [
         Output("new_conf_zoomed", "figure"),
-        Output("tests_zoomed", "figure")
+        Output("tests_zoomed", "figure"),
+        Output("tests_zoomed_pos_rate", "figure")
     ],
     [
         Input("date-range-picker", "start_date"),
@@ -110,18 +130,28 @@ def update_zoomed_figure(start_date, end_date):
     mask = (df['date'] >= start_date) & (df['date'] <= end_date)
     df_zoomed = df.loc[mask]
     df_bag_test_zoomed = df_bag_test.loc[mask]
-    fig_new_conf_zoomed = fc.get_bar(
+    fig_new_conf_zoomed = fc.get_bar_with_SMA(
         df_zoomed.date,
         df_zoomed.new_conf,
+        df_zoomed.date,
+        df_zoomed.new_conf_SMA_7,
         'Daily confirmed COVID-19 cases - Switzerland'
     )
-    fig_tests_zoomed = fc.get_tests_plot(
+    fig_tests_zoomed = fc.get_stacked_bar(
         df_bag_test_zoomed.date,
         df_bag_test_zoomed.positive,
+        df_bag_test_zoomed.date,
         df_bag_test_zoomed.negative,
         'Daily PCR-tests and outcome - Switzerland'
     )
-    return fig_new_conf_zoomed, fig_tests_zoomed
+    fig_test_pos_rate = fc.get_bar_with_SMA(
+    df_bag_test_zoomed.date,
+    df_bag_test_zoomed.pos_rate,
+    df_bag_test_zoomed.date,
+    df_bag_test_zoomed.SMA_7,
+    'Positivity rate of PCR-tests - Switzerland'
+)
+    return fig_new_conf_zoomed, fig_tests_zoomed, fig_test_pos_rate
 
 if __name__ == '__main__':
     # True for hot reloading

@@ -1,6 +1,6 @@
 import pandas as pd
 import requests
-from constants import CANTONS, URLs
+from constants import CANTONS, URLs, FOLDERS
 
 def add_diff_col(df, col, new_col):
     df[new_col] = df[col].diff()
@@ -8,14 +8,36 @@ def add_diff_col(df, col, new_col):
 
 def get_data():
     df_ch = get_CH_data_total()
-    df_bag = get_BAG_data()
-    df_ch.merge(right=df_bag, how='left', on='date')
-    df_ch.fillna(value=0, inplace=True)
+
+    # DON'T DO THAT --> Fills SMA_7-NaN wiht 0 too
+    #df_bag = get_BAG_data()
+    #df_ch.merge(right=df_bag, how='left', on='date')
+    #df_ch.fillna(value=0, inplace=True)
     return df_ch
 
+def download_openZH_data():
+    base_url = 'https://github.com/openZH/covid_19/raw/master/fallzahlen_kanton_total_csv_v2'
+    prefix_c_fn = 'COVID19_Fallzahlen_Kanton'
+    prefix_fn = 'COVID19_Fallzahlen'
+    postfix_fn = 'total.csv'
+
+    for c in CANTONS.values():
+        if (c == "FL"):
+            url = f'{base_url}/{prefix_fn}_{c}_{postfix_fn}'
+        else:
+            url = f'{base_url}/{prefix_c_fn}_{c}_{postfix_fn}'
+
+        r = requests.get(url, allow_redirects=True)
+        fname = url.split('/')[-1]
+        open(FOLDERS['openZH_data'] + fname, 'wb').write(r.content)
+
 def get_CH_data_total():
+    
+    # FIXME - remove before going productive and update the files separately
+    download_openZH_data()
+    
     # where to find the data files
-    folder_v2 = '/Users/eandreas/projects/dev/covid-19/openZH_covid-19/fallzahlen_kanton_total_csv_v2'
+    folder_v2 = FOLDERS['openZH_data']
     prefix_c_fn = 'COVID19_Fallzahlen_Kanton'
     prefix_fn = 'COVID19_Fallzahlen'
     postfix_fn = 'total.csv'
@@ -24,12 +46,10 @@ def get_CH_data_total():
 
     for c in CANTONS.values():
     
-        #c = 'ZH'
-    
         if (c == "FL"):
-            file = f'{folder_v2}/{prefix_fn}_{c}_{postfix_fn}'
+            file = f'{folder_v2}{prefix_fn}_{c}_{postfix_fn}'
         else:
-            file = f'{folder_v2}/{prefix_c_fn}_{c}_{postfix_fn}'
+            file = f'{folder_v2}{prefix_c_fn}_{c}_{postfix_fn}'
     
         dfc = pd.read_csv(file)
         dfc['date'] = pd.to_datetime(dfc['date'], dayfirst=True)
@@ -63,15 +83,16 @@ def get_CH_data_total():
         add_diff_col(dfc, 'current_isolated', 'delta_isolated')
         add_diff_col(dfc, 'current_quarantined', 'delta_quarantined')
         add_diff_col(dfc, 'ncumul_released', 'new_released')
+
+        # add 7-day simple mean average for new_conf
+        dfc['new_conf_SMA_7'] = round(dfc['new_conf'].rolling(window=7, center=True).mean(), 1)
     
         # append the dataframe and go on with the next canton
         dfs.append(dfc)
-    
-        #break
 
     # sum up all the cantons dataframes
     df_ch = pd.concat(dfs, sort=False)
-    df_ch = df_ch.groupby('date').sum()
+    df_ch = df_ch.groupby('date').sum(min_count=1)
     df_ch.index.name = 'date'
     df_ch.reset_index(level=0, inplace=True)
 
@@ -97,10 +118,14 @@ def get_BAG_data():
 def download_BAG_test_data():
     r = requests.get(URLs['BAG_test_data'], allow_redirects=True)
     fname = URLs['BAG_test_data'].split('/')[-1]
-    open(fname, 'wb').write(r.content)
+    open(FOLDERS['BAG_data'] + fname, 'wb').write(r.content)
 
 def get_BAG_test_data():
-    df_bag_test = pd.read_excel('Dashboard_3_COVID19_labtests_positivity.xlsx')
+
+    # FIXME - remove before going productive and update the files separately
+    download_BAG_test_data()
+
+    df_bag_test = pd.read_excel(FOLDERS['BAG_data'] + 'Dashboard_3_COVID19_labtests_positivity.xlsx')
     df_bag_test = df_bag_test.drop('Replikation_dt', axis=1)
     df_bag_test_pos = df_bag_test[df_bag_test['Outcome_tests'] == 'Positive']
     df_bag_test_pos = df_bag_test_pos.drop('Outcome_tests', axis=1)
