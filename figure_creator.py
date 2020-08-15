@@ -36,7 +36,7 @@ def get_bar_with_SMA(x_bar, y_bar, x_sma, y_sma, title):
     return fig
 
 
-def get_stacked_bar_2ys(x1, y1, x2, y2, x3, y3, title):
+def get_stacked_bar_2ys(x1, y1, x2, y2, x3, y3, x4, y4, title):
 
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
@@ -47,7 +47,10 @@ def get_stacked_bar_2ys(x1, y1, x2, y2, x3, y3, title):
         go.Bar(name='negative', x=x2, y=y2), secondary_y=False,
     )
     fig.add_trace(
-        go.Scatter(name='positivity rate (SMA7)', x=x3, y=y3),
+        go.Scatter(name='daily tests (SMA7)', x=x3, y=y3, fill='tonexty'), secondary_y=False,
+    )
+    fig.add_trace(
+        go.Scatter(name='positivity rate (SMA7)', x=x4, y=y4),
         secondary_y=True,
     )
 

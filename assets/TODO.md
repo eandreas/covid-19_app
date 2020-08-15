@@ -16,6 +16,7 @@ To-Do
 * Welche Daten sind komplett, welche nicht?
 * Design
 * Sprachen
+* number of total conf vs. number of new conf, both log scale
 
 
 Done
