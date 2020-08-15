@@ -95,6 +95,10 @@ def get_CH_data_total():
     df_ch = df_ch.groupby('date').sum(min_count=1)
     df_ch.index.name = 'date'
     df_ch.reset_index(level=0, inplace=True)
+    # the SMA7 gets broken for incomplete data (missing cantons) when summing up, so let's recalculate
+    df_ch['new_conf_SMA_7'] = round(df_ch['new_conf'].rolling(window=7, center=True).mean(), 1)
+
+    print(df_ch.new_conf_SMA_7.tail(8))
 
     return df_ch
 
