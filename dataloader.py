@@ -85,8 +85,8 @@ def get_CH_data_total():
         add_diff_col(dfc, 'ncumul_released', 'new_released')
 
         # add 7-day simple mean averages
-        dfc['new_conf_SMA7'] = round(dfc['new_conf'].rolling(window=7, center=True).mean(), 1)
-        dfc['current_hosp_SMA7'] = round(dfc['current_hosp'].rolling(window=7, center=True).mean(), 1)
+        dfc['new_conf_SMA7'] = round(dfc['new_conf'].rolling(window=7, center=True).mean(), 0)
+        dfc['current_hosp_SMA7'] = round(dfc['current_hosp'].rolling(window=7, center=True).mean(), 0)
     
         # append the dataframe and go on with the next canton
         dfs.append(dfc)
@@ -97,8 +97,8 @@ def get_CH_data_total():
     df_ch.index.name = 'date'
     df_ch.reset_index(level=0, inplace=True)
     # the SMA7 gets broken for incomplete data (missing cantons) when summing up, so let's recalculate
-    df_ch['new_conf_SMA7'] = round(df_ch['new_conf'].rolling(window=7, center=True).mean(), 1)
-    df_ch['current_hosp_SMA7'] = round(df_ch['current_hosp'].rolling(window=7, center=True).mean(), 1)
+    df_ch['new_conf_SMA7'] = round(df_ch['new_conf'].rolling(window=7, center=True).mean(), 0)
+    df_ch['current_hosp_SMA7'] = round(df_ch['current_hosp'].rolling(window=7, center=True).mean(), 0)
 
     return df_ch
 
@@ -140,7 +140,7 @@ def get_BAG_test_data():
     df_bag_test['pos_rate'] = round(100 * df_bag_test['positive'] / (df_bag_test['positive'] + df_bag_test['negative']), 1)
     df_bag_test['pos_rate_SMA7'] = round(df_bag_test['pos_rate'].rolling(window=7, center=True).mean(), 1)
     df_bag_test['new_tests'] = df_bag_test['positive'] + df_bag_test['negative']
-    df_bag_test['new_tests_SMA7'] = round(df_bag_test['new_tests'].rolling(window=7, center=True).mean(), 1)
+    df_bag_test['new_tests_SMA7'] = round(df_bag_test['new_tests'].rolling(window=7, center=True).mean(), 0)
     return df_bag_test
 
 def stretch_data_frames(dfs):
