@@ -34,7 +34,7 @@ def download_openZH_data():
 def get_CH_data_total():
     
     # FIXME - remove before going productive and update the files separately
-    download_openZH_data()
+    #download_openZH_data()
     
     # where to find the data files
     folder_v2 = FOLDERS['openZH_data']

@@ -1,4 +1,5 @@
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 def get_bar(x, y, title=None):
     fig = go.Figure()
@@ -35,10 +36,32 @@ def get_bar_with_SMA(x_bar, y_bar, x_sma, y_sma, title):
     return fig
 
 
-""" # prepare figure for daily confirmed cases
-fig_new_conf = px.bar(df, x="date", y=["new_conf"], barmode="group")
-fig_new_conf.update_layout(title_text='Daily confirmed cases - Switzerland')
-fig_new_conf.update_layout(showlegend=False)
-#fig_new_conf.update_layout(plot_bgcolor=colors['background'], paper_bgcolor=colors['background'], font_color=colors['text'])
-#fig_new_conf.update_traces(marker_color='indianred', marker_line_color='rgb(8,48,107)',
-#                  marker_line_width=0, opacity=0.6) """
+def get_stacked_bar_2ys(x1, y1, x2, y2, x3, y3, title):
+
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+    fig.add_trace(
+        go.Bar(name='positive', x=x1, y=y1), secondary_y=False,
+    )
+    fig.add_trace(
+        go.Bar(name='negative', x=x2, y=y2), secondary_y=False,
+    )
+    fig.add_trace(
+        go.Scatter(name='positivity rate (SMA7)', x=x3, y=y3),
+        secondary_y=True,
+    )
+
+    # Set x-axis title
+    fig.update_xaxes(title_text='date')
+
+    # Set y-axes titles
+    fig.update_yaxes(title_text='Number of PCR-tests', secondary_y=False)
+    fig.update_yaxes(title_text='positivity rate / %', secondary_y=True)
+
+    fig.update_layout(
+        title=title,
+        barmode='stack',
+        hovermode="x unified",
+        legend=dict(yanchor="top", y=0.98, xanchor="left", x=0.01)
+    )
+    return fig

@@ -35,14 +35,23 @@ fig_new_conf_zoomed = fc.get_bar_with_SMA(
     'Daily confirmed COVID-19 cases - Switzerland'
 )
 
-fig_tests_zoomed = fc.get_stacked_bar(
+""" fig_tests_zoomed = fc.get_stacked_bar(
     df_bag_test.date,
     df_bag_test.positive,
     df_bag_test.date,
     df_bag_test.negative,
     'Daily PCR-tests and outcome - Switzerland'
-)
+) """
 
+fig_tests_zoomed = fc.get_stacked_bar_2ys(
+    df_bag_test.date,
+    df_bag_test.positive,
+    df_bag_test.date,
+    df_bag_test.negative,
+    df_bag_test.date,
+    df_bag_test.SMA_7,
+    'Daily PCR-tests and outcome - Switzerland'
+)
 fig_test_pos_rate = fc.get_bar_with_SMA(
     df_bag_test.date,
     df_bag_test.pos_rate,
@@ -137,13 +146,22 @@ def update_zoomed_figure(start_date, end_date):
         df_zoomed.new_conf_SMA_7,
         'Daily confirmed COVID-19 cases - Switzerland'
     )
-    fig_tests_zoomed = fc.get_stacked_bar(
+    """ fig_tests_zoomed = fc.get_stacked_bar(
         df_bag_test_zoomed.date,
         df_bag_test_zoomed.positive,
         df_bag_test_zoomed.date,
         df_bag_test_zoomed.negative,
         'Daily PCR-tests and outcome - Switzerland'
-    )
+    ) """
+    fig_tests_zoomed = fc.get_stacked_bar_2ys(
+    df_bag_test_zoomed.date,
+    df_bag_test_zoomed.positive,
+    df_bag_test_zoomed.date,
+    df_bag_test_zoomed.negative,
+    df_bag_test_zoomed.date,
+    df_bag_test_zoomed.SMA_7,
+    'Daily PCR-tests and outcome - Switzerland'
+)
     fig_test_pos_rate = fc.get_bar_with_SMA(
     df_bag_test_zoomed.date,
     df_bag_test_zoomed.pos_rate,
