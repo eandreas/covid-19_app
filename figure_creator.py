@@ -60,6 +60,7 @@ def get_stacked_bar_2ys(x1, y1, x2, y2, x3, y3, x4, y4, title):
     # Set y-axes titles
     fig.update_yaxes(title_text='Number of PCR-tests', secondary_y=False)
     fig.update_yaxes(title_text='positivity rate / %', secondary_y=True)
+    fig.update_yaxes(rangemode = 'tozero', secondary_y=True)
 
     fig.update_layout(
         title=title,
