@@ -34,7 +34,7 @@ def download_openZH_data():
 def get_CH_data_total():
     
     # FIXME - remove before going productive and update the files separately
-    #download_openZH_data()
+    download_openZH_data()
     
     # where to find the data files
     folder_v2 = FOLDERS['openZH_data']
@@ -84,8 +84,9 @@ def get_CH_data_total():
         add_diff_col(dfc, 'current_quarantined', 'delta_quarantined')
         add_diff_col(dfc, 'ncumul_released', 'new_released')
 
-        # add 7-day simple mean average for new_conf
+        # add 7-day simple mean averages
         dfc['new_conf_SMA7'] = round(dfc['new_conf'].rolling(window=7, center=True).mean(), 1)
+        dfc['current_hosp_SMA7'] = round(dfc['current_hosp'].rolling(window=7, center=True).mean(), 1)
     
         # append the dataframe and go on with the next canton
         dfs.append(dfc)
@@ -97,6 +98,7 @@ def get_CH_data_total():
     df_ch.reset_index(level=0, inplace=True)
     # the SMA7 gets broken for incomplete data (missing cantons) when summing up, so let's recalculate
     df_ch['new_conf_SMA7'] = round(df_ch['new_conf'].rolling(window=7, center=True).mean(), 1)
+    df_ch['current_hosp_SMA7'] = round(df_ch['current_hosp'].rolling(window=7, center=True).mean(), 1)
 
     return df_ch
 

@@ -1,13 +1,15 @@
+In Work
+=======
+
 To-Do
 =====
 
 * Daten im Slider:
    ** welche sollen angezeit werden?
    ** was waren die relevanten ereignisse?
-   ** siehe Webseite der SNC-TF
+   --> siehe Webseite der SNC-TF: https://ncs-tf.ch/de/lagebericht
 * Make sure the data is not downloaded each time some one calls the url
   (it is conveniant to do so for the moment, but must stop later when going productive)
-* Number of hospitalized (normal, icu, vent) & number of died patients
 * Save data canton-wise
 * Reproduktionszahl
 * Quellen der Daten (BAG, OpenZH, SNC-TF)
@@ -17,8 +19,11 @@ To-Do
 * Design
 * Sprachen
 * number of total conf vs. number of new conf, both log scale
-
+* Graph separat nach Wochentag
+* BAG-Daten only für CH-Werte (und evtl. für die Kantone auch?)
+* Number of deceased
 
 Done
 ====
-- alle Daten (egal welche Quelle) müssen gleich "lang" sein --> fehlende Daten mit NaN ergänzen
+* alle Daten (egal welche Quelle) müssen gleich "lang" sein --> fehlende Daten mit NaN ergänzen
+* Number of hospitalized (normal, icu, vent)

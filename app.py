@@ -25,27 +25,10 @@ df = get_data()
 df_bag_test = get_BAG_test_data()
 df, df_bag_test = stretch_data_frames([df, df_bag_test])
 
-fig_new_conf = fc.get_bar(df.date, df.new_conf)
-
-fig_new_conf_zoomed = fc.get_bar_with_SMA(
-    df.date,
-    df.new_conf,
-    df.date,
-    df.new_conf_SMA7,
-    'Daily confirmed COVID-19 cases - Switzerland'
-)
-
-fig_tests_zoomed = fc.get_stacked_bar_2ys(
-    df_bag_test.date,
-    df_bag_test.positive,
-    df_bag_test.date,
-    df_bag_test.negative,
-    df_bag_test.date,
-    df_bag_test.pos_rate_SMA7,
-    df_bag_test.date,
-    df_bag_test.new_tests_SMA7,
-    'Daily PCR-tests and outcome - Switzerland'
-)
+fig_new_conf = fc.get_daily_new_conf_bars_only(df)
+fig_new_conf_zoomed = fc.get_daly_new_conf(df, df_bag_test)
+fig_tests_zoomed = fc.get_pcr_tests(df_bag_test)
+fig_hosp_zoomed = fc.get_hospitalizations(df)
 
 app.layout = html.Div([
     html.H1(
@@ -83,6 +66,10 @@ app.layout = html.Div([
     dcc.Graph(
         id='tests_zoomed',
         figure=fig_tests_zoomed
+    ),
+    dcc.Graph(
+        id='hosp_zoomed',
+        figure=fig_hosp_zoomed
     )
 ])
 
@@ -111,6 +98,7 @@ def update_figure(date_range_slider):
     [
         Output("new_conf_zoomed", "figure"),
         Output("tests_zoomed", "figure"),
+        Output("hosp_zoomed", "figure")
     ],
     [
         Input("date-range-picker", "start_date"),
@@ -121,29 +109,16 @@ def update_zoomed_figure(start_date, end_date):
     mask = (df['date'] >= start_date) & (df['date'] <= end_date)
     df_zoomed = df.loc[mask]
     df_bag_test_zoomed = df_bag_test.loc[mask]
-    fig_new_conf_zoomed = fc.get_bar_with_SMA(
-        df_zoomed.date,
-        df_zoomed.new_conf,
-        df_zoomed.date,
-        df_zoomed.new_conf_SMA7,
-        'Daily confirmed COVID-19 cases - Switzerland'
-    )
+    fig_new_conf_zoomed = fc.get_daly_new_conf(df_zoomed, df_bag_test_zoomed)
     fig_new_conf_zoomed.update_layout(transition_duration=500)
 
-    fig_tests_zoomed = fc.get_stacked_bar_2ys(
-        df_bag_test_zoomed.date,
-        df_bag_test_zoomed.positive,
-        df_bag_test_zoomed.date,
-        df_bag_test_zoomed.negative,
-        df_bag_test_zoomed.date,
-        df_bag_test_zoomed.new_tests_SMA7,
-        df_bag_test_zoomed.date,
-        df_bag_test_zoomed.pos_rate_SMA7,
-    'Daily PCR-tests and outcome - Switzerland'
-    )
+    fig_tests_zoomed = fc.get_pcr_tests(df_bag_test_zoomed)
     fig_tests_zoomed.update_layout(transition_duration=500)
 
-    return fig_new_conf_zoomed, fig_tests_zoomed
+    fig_hosp_zoomed = fc.get_hospitalizations(df_zoomed)
+    fig_hosp_zoomed.update_layout(transition_duration=500)
+
+    return fig_new_conf_zoomed, fig_tests_zoomed, fig_hosp_zoomed
 
 if __name__ == '__main__':
     # True for hot reloading
