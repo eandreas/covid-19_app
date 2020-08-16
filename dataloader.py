@@ -1,6 +1,6 @@
 import pandas as pd
 import requests
-from constants import CANTONS, URLs, FOLDERS
+from constants import CANTONS, URLs, FOLDERS, DO_DOWNLOAD
 
 def add_diff_col(df, col, new_col):
     df[new_col] = df[col].diff()
@@ -34,7 +34,10 @@ def download_openZH_data():
 def get_CH_data_total():
     
     # FIXME - remove before going productive and update the files separately
-    download_openZH_data()
+    if DO_DOWNLOAD == True:
+        print('Downloading data from openZH...', end='')
+        download_openZH_data()
+        print('done.')
     
     # where to find the data files
     folder_v2 = FOLDERS['openZH_data']
@@ -127,7 +130,10 @@ def download_BAG_test_data():
 def get_BAG_test_data():
 
     # FIXME - remove before going productive and update the files separately
-    download_BAG_test_data()
+    if DO_DOWNLOAD == True:
+        print('Downloading data from BAG...', end='')
+        download_BAG_test_data()
+        print('done.')
 
     df_bag_test = pd.read_excel(FOLDERS['BAG_data'] + 'Dashboard_3_COVID19_labtests_positivity.xlsx')
     df_bag_test = df_bag_test.drop('Replikation_dt', axis=1)
