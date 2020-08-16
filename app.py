@@ -19,7 +19,7 @@ import figure_creator as fc
 #app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app = dash.Dash(__name__)
 #app = dash.Dash()
-app.config['suppress_callback_exceptions'] = True
+#app.config['suppress_callback_exceptions'] = True
 
 df = get_data()
 df_bag_test = get_BAG_test_data()
@@ -29,6 +29,7 @@ fig_new_conf = fc.get_daily_new_conf_bars_only(df)
 fig_new_conf_zoomed = fc.get_daly_new_conf(df, df_bag_test)
 fig_tests_zoomed = fc.get_pcr_tests(df_bag_test)
 fig_hosp_zoomed = fc.get_hospitalizations(df)
+fig_pand_prog = fc.get_pand_prog(df)
 
 app.layout = html.Div([
     html.H1(
@@ -57,19 +58,35 @@ app.layout = html.Div([
     ),
     dcc.Graph(
         id='new_conf',
-        figure=fig_new_conf
+        figure=fig_new_conf,
+        config={
+            'displayModeBar': False,
+            #'staticPlot': True
+        }
     ),
     dcc.Graph(
         id='new_conf_zoomed',
-        figure=fig_new_conf_zoomed
+        figure=fig_new_conf_zoomed,
+        config={
+            'displayModeBar': False,
+            #'staticPlot': True
+        }
     ),
     dcc.Graph(
         id='tests_zoomed',
-        figure=fig_tests_zoomed
+        figure=fig_tests_zoomed,
+        config={
+            'displayModeBar': False,
+            #'staticPlot': True
+        }
     ),
     dcc.Graph(
         id='hosp_zoomed',
-        figure=fig_hosp_zoomed
+        figure=fig_hosp_zoomed,
+        config={
+            'displayModeBar': False,
+            #'staticPlot': True
+        }
     )
 ])
 
@@ -109,7 +126,13 @@ def update_zoomed_figure(start_date, end_date):
     mask = (df['date'] >= start_date) & (df['date'] <= end_date)
     df_zoomed = df.loc[mask]
     df_bag_test_zoomed = df_bag_test.loc[mask]
-    fig_new_conf_zoomed = fc.get_daly_new_conf(df_zoomed, df_bag_test_zoomed)
+
+    #fig_new_conf_zoomed = fc.get_daly_new_conf(df_zoomed, df_bag_test_zoomed)
+    y1_max = 1.05 * max(df_zoomed.new_conf.max(), df_zoomed.new_conf_SMA7.max())
+    y2_max = 1.05 * df_bag_test_zoomed.new_tests_SMA7.max()
+    fig_new_conf_zoomed.update_xaxes(range=[start_date, end_date])
+    fig_new_conf_zoomed.update_yaxes(range=[0, y1_max], secondary_y=False)
+    fig_new_conf_zoomed.update_yaxes(range=[0, y2_max], secondary_y=True)
     fig_new_conf_zoomed.update_layout(transition_duration=500)
 
     fig_tests_zoomed = fc.get_pcr_tests(df_bag_test_zoomed)

@@ -72,3 +72,16 @@ def get_hospitalizations(df):
         legend=dict(yanchor="top", y=0.98, xanchor="left", x=0.01, bgcolor='rgba(255, 255, 255, 0.7)')
     )
     return fig
+
+def get_pand_prog(df):
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(name='', x=df.ncumul_conf, y=df.new_conf_SMA7))
+    # Set x-axis title
+    fig.update_xaxes(title_text='Total reported cases (SMA7)')
+    # Set y-axes titles
+    fig.update_yaxes(title_text='Daily reported cases')
+    fig.update_xaxes(type="log")
+    fig.update_yaxes(type="log")
+    #fig.update_xaxes(rangemode = 'tozero')
+    #fig.update_yaxes(rangemode = 'tozero')
+    return fig
