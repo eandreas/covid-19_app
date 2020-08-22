@@ -24,6 +24,8 @@ To-Do
 * BAG-Daten only für CH-Werte (und evtl. für die Kantone auch?)
 * Number of deceased
 * number of total conf vs. number of new conf, both log scale
+* Data from world of data
+* make use of dcc.Loading
 
 Done
 ====

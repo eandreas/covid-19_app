@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import dash
 #import dash_daq as daq
+import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
@@ -15,11 +16,12 @@ from constants import CANTONS, DAY_IN_NS
 from tools import *
 import figure_creator as fc
 
-#external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-#app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-app = dash.Dash(__name__)
-#app = dash.Dash()
-#app.config['suppress_callback_exceptions'] = True
+external_stylesheets = [
+    dbc.themes.YETI,
+    #'https://use.fontawesome.com/releases/v5.9.0/css/all.css',
+]
+
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 df = get_data()
 df_bag_test = get_BAG_test_data()
@@ -31,72 +33,124 @@ fig_tests_zoomed = fc.get_pcr_tests(df_bag_test)
 fig_hosp_zoomed = fc.get_hospitalizations(df)
 fig_pand_prog = fc.get_pand_prog(df)
 
-app.layout = html.Div([
-    html.H1(
-        'COVID-19 Cases and Analysis',
-    ),
-    dcc.DatePickerRange(
-        id='date-range-picker',
-        min_date_allowed=df['date'].min(),
-        max_date_allowed=df['date'].max(),
-        display_format='DD.MM.YYYY',
-        start_date_placeholder_text='DD.MM.YYYY',
-        disabled=True
-    ),
-    dcc.RangeSlider(
-        id='date-range-slider',
-        min=df['date'].min().value,
-        max=df['date'].max().value,
-        step=DAY_IN_NS,
-        value=[yyyymmdd2ns('20200601'), df['date'].max().value],
-        allowCross=False,
-        updatemode='drag',
-        marks = {
-            yyyymmdd2ns('20200601'): '1. Juni'
-        },
-        #persistence=True
-    ),
-    dcc.Graph(
-        id='new_conf',
-        figure=fig_new_conf,
-        config={
-            'displayModeBar': False,
-            #'staticPlot': True
-        }
-    ),
-    dcc.Graph(
-        id='new_conf_zoomed',
-        figure=fig_new_conf_zoomed,
-        config={
-            'displayModeBar': False,
-            #'staticPlot': True
-        }
-    ),
-    dcc.Graph(
-        id='tests_zoomed',
-        figure=fig_tests_zoomed,
-        config={
-            'displayModeBar': False,
-            #'staticPlot': True
-        }
-    ),
-    dcc.Graph(
-        id='hosp_zoomed',
-        figure=fig_hosp_zoomed,
-        config={
-            'displayModeBar': False,
-            #'staticPlot': True
-        }
-    )
+NAVBAR = dbc.NavbarSimple(
+    brand="COVID-19 Pandemic - Switzerland",
+    brand_href="#",
+    color="primary",
+    dark=True,
+)
+
+TIME_WINDOW_SELECTION = dbc.Card(
+    [
+        dbc.CardHeader("Wahl des Zeitfensters"),
+        dbc.CardBody(
+            [
+                html.P(
+                    "Stelle das gewünschte Zeitfenster ein. Die Auswahl wirkt sich auf die unten angezeigten Kennzahlen und Graphen aus.",
+                    className="card-text",
+                ),
+                html.Hr(),
+                dcc.RangeSlider(
+                    id='date-range-slider',
+                    min=df['date'].min().value,
+                    max=df['date'].max().value,
+                    step=DAY_IN_NS,
+                    value=[yyyymmdd2ns('20200601'), df['date'].max().value],
+                    allowCross=False,
+                    updatemode='drag',
+                    marks = {
+                        df.date.min().value: df.date.min().strftime('%d.%m.%Y'),
+                        yyyymmdd2ns('20200601'): '1. Juni',
+                        df.date.max().value: df.date.max().strftime('%d.%m.%Y')
+                    },
+                    #persistence=True
+                ),
+                html.Hr(),
+                dcc.Graph(
+                    id="new_conf",
+                    figure=fig_new_conf,
+                    config={
+                        'displayModeBar': False,
+                        #'staticPlot': True
+                    }
+                )
+            ]
+        ),
+    ]
+)
+
+NEWLY_CONFIRMED_CASES = dbc.Card(
+    [
+        dbc.CardHeader("Neu bestätigte Fälle"),
+        dbc.CardBody(
+            [
+                dcc.Graph(
+                    id='new_conf_zoomed',
+                    figure=fig_new_conf_zoomed,
+                    config={
+                        'displayModeBar': False,
+                    #'staticPlot': True
+                    }
+                ),
+            ]
+        ),
+    ], className="mt-3"
+)
+
+TESTS_AND_POSITIVITY_RATE = dbc.Card(
+    [
+        dbc.CardHeader("Durchgeführte Tests und Positivitätsrate"),
+        dbc.CardBody(
+            [
+                dcc.Graph(
+                    id='tests_zoomed',
+                    figure=fig_tests_zoomed,
+                    config={
+                        'displayModeBar': False,
+                        #'staticPlot': True
+                    }
+                ),
+            ]
+        ),
+    ], className="mt-3"
+)
+
+HOSPITALIZATIONS = dbc.Card(
+    [
+        dbc.CardHeader("Hospitalisierungen"),
+        dbc.CardBody(
+            [
+                dcc.Graph(
+                    id='hosp_zoomed',
+                    figure=fig_hosp_zoomed,
+                    config={
+                        'displayModeBar': False,
+                        #'staticPlot': True
+                    }
+                )
+            ]
+        ),
+    ], className="mt-3"
+)
+
+BODY = dbc.Container(
+    [
+        TIME_WINDOW_SELECTION,
+        NEWLY_CONFIRMED_CASES,
+        TESTS_AND_POSITIVITY_RATE,
+        HOSPITALIZATIONS
+    ],
+    className="mt-3 mb-3",
+)
+
+app.layout = html.Div(children=[
+    NAVBAR,
+    BODY
 ])
 
 # update color dependent on date range slider (selected time window)
 @app.callback(
-    [
-        Output("new_conf", "figure"),
-        Output("date-range-picker", "start_date"),
-        Output("date-range-picker", "end_date")
-    ],
+    Output("new_conf", "figure"),
     [
         Input("date-range-slider", "value")
     ],
@@ -109,7 +163,7 @@ def update_figure(date_range_slider):
     for i in range(start, end + 1):
         cols[i] = colors['selected_bars']
     fig_new_conf.update_traces(marker_color=cols)
-    return fig_new_conf, pd.to_datetime(date_range_slider[0]), pd.to_datetime(date_range_slider[1])
+    return fig_new_conf
 
 @app.callback(
     [
@@ -118,11 +172,12 @@ def update_figure(date_range_slider):
         Output("hosp_zoomed", "figure")
     ],
     [
-        Input("date-range-picker", "start_date"),
-        Input("date-range-picker", "end_date")
+        Input("date-range-slider", "value")
     ],
 )
-def update_zoomed_figure(start_date, end_date):
+def update_zoomed_figure(date_range_slider):
+    start_date = pd.to_datetime(date_range_slider[0])
+    end_date = pd.to_datetime(date_range_slider[1])
     mask = (df['date'] >= start_date) & (df['date'] <= end_date)
     df_zoomed = df.loc[mask]
     df_bag_test_zoomed = df_bag_test.loc[mask]

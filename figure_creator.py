@@ -10,6 +10,7 @@ def get_daily_new_conf_bars_only(df):
     fig.update_yaxes(title_text='Newly confirmed COVID-19 cases')
     fig.update_layout(
         title=None,
+        margin=dict(t=10, b=10, l=60, r=0, pad=0)
     )
     return fig
 
@@ -25,10 +26,11 @@ def get_daly_new_conf(df, df_bag_test):
     fig.update_yaxes(title_text='Number of PCR-tests', secondary_y=True)
     fig.update_yaxes(rangemode = 'tozero')
     fig.update_layout(
-        title='Daily new confirmed COVID-19 cases - Switzerland',
         barmode='stack',
         hovermode="x unified",
-        legend=dict(yanchor="top", y=0.98, xanchor="left", x=0.01, bgcolor='rgba(255, 255, 255, 0.7)')
+        legend=dict(yanchor="top", y=0.98, xanchor="left", x=0.01, bgcolor='rgba(255, 255, 255, 0.7)'),
+        title=None,
+        margin=dict(t=10, b=10, l=60, r=0, pad=0),
     )
     return fig
 
@@ -45,10 +47,11 @@ def get_pcr_tests(df):
     fig.update_yaxes(title_text='positivity rate / %', secondary_y=True)
     fig.update_yaxes(rangemode = 'tozero')
     fig.update_layout(
-        title='Daily PCR-tests and outcome - Switzerland',
         barmode='stack',
         hovermode="x unified",
-        legend=dict(yanchor="top", y=0.98, xanchor="left", x=0.01, bgcolor='rgba(255, 255, 255, 0.7)')
+        legend=dict(yanchor="top", y=0.98, xanchor="left", x=0.01, bgcolor='rgba(255, 255, 255, 0.7)'),
+        title=None,
+        margin=dict(t=10, b=10, l=60, r=0, pad=0),
     )
     return fig
 
@@ -66,10 +69,11 @@ def get_hospitalizations(df):
     fig.update_yaxes(title_text='Newly confirmed COVID-19 cases', secondary_y=True)
     fig.update_yaxes(rangemode = 'tozero')
     fig.update_layout(
-        title='Hospitalizations',
         barmode='stack',
         hovermode="x unified",
-        legend=dict(yanchor="top", y=0.98, xanchor="left", x=0.01, bgcolor='rgba(255, 255, 255, 0.7)')
+        legend=dict(yanchor="top", y=0.98, xanchor="left", x=0.01, bgcolor='rgba(255, 255, 255, 0.7)'),
+        title=None,
+        margin=dict(t=10, b=10, l=60, r=0, pad=0),
     )
     return fig
 
@@ -84,4 +88,8 @@ def get_pand_prog(df):
     fig.update_yaxes(type="log")
     #fig.update_xaxes(rangemode = 'tozero')
     #fig.update_yaxes(rangemode = 'tozero')
+    fig.update_layout(
+        title=None,
+        margin=dict(t=10, b=10, l=60, r=0, pad=0)
+    )
     return fig
