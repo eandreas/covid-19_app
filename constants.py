@@ -11,6 +11,8 @@ FOLDERS = {
     'openZH_data': 'data/openZH/'
 }
 
+FIGURE_TEMPLATE = 'simple_white'
+
 CANTONS = {
     "01": "AG",
     "02": "AI",

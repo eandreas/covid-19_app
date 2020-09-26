@@ -33,6 +33,8 @@ fig_tests_zoomed = fc.get_pcr_tests(df_bag_test)
 fig_hosp_zoomed = fc.get_hospitalizations(df)
 fig_pand_prog = fc.get_pand_prog(df)
 
+#fig_map = fc.get_map_figure()
+
 NAVBAR = dbc.NavbarSimple(
     brand="COVID-19 Pandemic - Switzerland",
     brand_href="#",
@@ -133,9 +135,28 @@ HOSPITALIZATIONS = dbc.Card(
     ], className="mt-3"
 )
 
+""" MAP = dbc.Card(
+    [
+        dbc.CardHeader("Map"),
+        dbc.CardBody(
+            [
+                dcc.Graph(
+                    id='map',
+                    figure=fig_map,
+                    config={
+                        'displayModeBar': False,
+                        #'staticPlot': True
+                    }
+                )
+            ]
+        ),
+    ], className="mt-3"
+) """
+
 BODY = dbc.Container(
     [
         TIME_WINDOW_SELECTION,
+        #MAP,
         NEWLY_CONFIRMED_CASES,
         TESTS_AND_POSITIVITY_RATE,
         HOSPITALIZATIONS

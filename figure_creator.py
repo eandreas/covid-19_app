@@ -1,16 +1,25 @@
 import plotly.graph_objects as go
+import constants
 from plotly.subplots import make_subplots
+from colors import *
+
+import pandas as pd
 
 def get_daily_new_conf_bars_only(df):
     fig = go.Figure()
     fig.add_trace(go.Bar(x=df.date, y=df.new_conf))
     # Set x-axis title
-    fig.update_xaxes(title_text='date')
+    fig.update_xaxes(
+        title_text='date',
+        #linecolor=colors['axis']
+    )
     # Set y-axes titles
     fig.update_yaxes(title_text='Newly confirmed COVID-19 cases')
     fig.update_layout(
         title=None,
-        margin=dict(t=10, b=10, l=60, r=0, pad=0)
+        #font_color=colors['axis_label'],
+        margin=dict(t=10, b=10, l=60, r=0, pad=0),
+        template=constants.FIGURE_TEMPLATE
     )
     return fig
 
@@ -31,6 +40,7 @@ def get_daly_new_conf(df, df_bag_test):
         legend=dict(yanchor="top", y=0.98, xanchor="left", x=0.01, bgcolor='rgba(255, 255, 255, 0.7)'),
         title=None,
         margin=dict(t=10, b=10, l=60, r=0, pad=0),
+        template=constants.FIGURE_TEMPLATE
     )
     return fig
 
@@ -52,6 +62,7 @@ def get_pcr_tests(df):
         legend=dict(yanchor="top", y=0.98, xanchor="left", x=0.01, bgcolor='rgba(255, 255, 255, 0.7)'),
         title=None,
         margin=dict(t=10, b=10, l=60, r=0, pad=0),
+        template=constants.FIGURE_TEMPLATE
     )
     return fig
 
@@ -74,6 +85,7 @@ def get_hospitalizations(df):
         legend=dict(yanchor="top", y=0.98, xanchor="left", x=0.01, bgcolor='rgba(255, 255, 255, 0.7)'),
         title=None,
         margin=dict(t=10, b=10, l=60, r=0, pad=0),
+        template=constants.FIGURE_TEMPLATE
     )
     return fig
 
@@ -90,6 +102,39 @@ def get_pand_prog(df):
     #fig.update_yaxes(rangemode = 'tozero')
     fig.update_layout(
         title=None,
-        margin=dict(t=10, b=10, l=60, r=0, pad=0)
+        margin=dict(t=10, b=10, l=60, r=0, pad=0),
+        template=constants.FIGURE_TEMPLATE
+    )
+    return fig
+
+def get_map_figure():
+    df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/2011_us_ag_exports.csv')
+
+    for col in df.columns:
+        df[col] = df[col].astype(str)
+
+    df['text'] = df['state'] + '<br>' + \
+        'Beef ' + df['beef'] + ' Dairy ' + df['dairy'] + '<br>' + \
+        'Fruits ' + df['total fruits'] + ' Veggies ' + df['total veggies'] + '<br>' + \
+        'Wheat ' + df['wheat'] + ' Corn ' + df['corn']
+
+    fig = go.Figure(data=go.Choropleth(
+        locations=df['code'],
+        z=df['total exports'].astype(float),
+        locationmode='USA-states',
+        colorscale='Reds',
+        autocolorscale=False,
+        text=df['text'], # hover text
+        marker_line_color='white', # line markers between states
+        colorbar_title="Millions USD"
+    ))
+    
+    fig.update_layout(
+        title_text='2011 US Agriculture Exports by State<br>(Hover for breakdown)',
+        geo = dict(
+            scope='usa',
+            projection=go.layout.geo.Projection(type = 'albers usa'),
+            showlakes=True, # lakes
+            lakecolor='rgb(255, 255, 255)'),
     )
     return fig
