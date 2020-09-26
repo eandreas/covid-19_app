@@ -10,7 +10,7 @@ import plotly.subplots as spl
 import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime as dt
-from dataloader import get_data, get_BAG_test_data, stretch_data_frames, download_BAG_test_data
+from dataloader import get_data, get_BAG_report_data, get_BAG_test_data, stretch_data_frames, download_BAG_test_data
 from colors import *
 from constants import CANTONS, DAY_IN_NS
 from tools import *
@@ -25,6 +25,7 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 df = get_data()
 df_bag_test = get_BAG_test_data()
+df_bag_report = get_BAG_report_data()
 df, df_bag_test = stretch_data_frames([df, df_bag_test])
 
 fig_new_conf = fc.get_daily_new_conf_bars_only(df)

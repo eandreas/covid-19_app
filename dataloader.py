@@ -149,6 +149,33 @@ def get_BAG_test_data():
     df_bag_test['new_tests_SMA7'] = round(df_bag_test['new_tests'].rolling(window=7, center=True).mean(), 0)
     return df_bag_test
 
+def download_BAG_report_data():
+    r = requests.get(URLs['BAG_report_data'], allow_redirects=True)
+    fname = URLs['BAG_report_data'].split('/')[-1]
+    open(FOLDERS['BAG_data'] + fname, 'wb').write(r.content)
+
+def get_BAG_report_data():
+
+    # FIXME - remove before going productive and update the files separately
+    if DO_DOWNLOAD == True:
+        print('Downloading data from BAG...', end='')
+        download_BAG_report_data()
+        print('done.')
+
+    """ df_bag_report = pd.read_excel(FOLDERS['BAG_data'] + 'Dashboard_3_COVID19_labtests_positivity.xlsx')
+    df_bag_test = df_bag_test.drop('Replikation_dt', axis=1)
+    df_bag_test_pos = df_bag_test[df_bag_test['Outcome_tests'] == 'Positive']
+    df_bag_test_pos = df_bag_test_pos.drop('Outcome_tests', axis=1)
+    df_bag_test_neg = df_bag_test[df_bag_test['Outcome_tests'] == 'Negative']
+    df_bag_test_neg = df_bag_test_neg.drop('Outcome_tests', axis=1)
+    df_bag_test = df_bag_test_pos.merge(right=df_bag_test_neg, on='Datum')
+    df_bag_test = df_bag_test.rename(columns={"Datum": "date", "Number_of_tests_x": "positive", "Number_of_tests_y": "negative"})
+    df_bag_test['pos_rate'] = round(100 * df_bag_test['positive'] / (df_bag_test['positive'] + df_bag_test['negative']), 1)
+    df_bag_test['pos_rate_SMA7'] = round(df_bag_test['pos_rate'].rolling(window=7, center=True).mean(), 1)
+    df_bag_test['new_tests'] = df_bag_test['positive'] + df_bag_test['negative']
+    df_bag_test['new_tests_SMA7'] = round(df_bag_test['new_tests'].rolling(window=7, center=True).mean(), 0) """
+    return None
+
 def stretch_data_frames(dfs):
     # initialize min and max date
     min_date = dfs[0].date.min()
