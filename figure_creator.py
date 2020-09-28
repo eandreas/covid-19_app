@@ -5,6 +5,25 @@ from colors import *
 
 import pandas as pd
 
+def get_daily_new_conf_aei(df_oz, df_bag):
+    fig = go.Figure()
+    fig.add_trace(go.Bar(x=df_oz.date, y=df_oz.new_conf, name='openZH'))
+    fig.add_trace(go.Bar(x=df_bag.date, y=df_bag.new_conf, name='BAG'))
+    # Set x-axis title
+    fig.update_xaxes(
+        title_text='date',
+        #linecolor=colors['axis']
+    )
+    # Set y-axes titles
+    fig.update_yaxes(title_text='Newly confirmed COVID-19 cases')
+    fig.update_layout(
+        title=None,
+        #font_color=colors['axis_label'],
+        margin=dict(t=10, b=10, l=60, r=0, pad=0),
+        template=constants.FIGURE_TEMPLATE
+    )
+    return fig
+
 def get_daily_new_conf_bars_only(df):
     fig = go.Figure()
     fig.add_trace(go.Bar(x=df.date, y=df.new_conf))

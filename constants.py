@@ -1,4 +1,4 @@
-DO_DOWNLOAD=True
+DO_DOWNLOAD=False
 
 DAY_IN_NS = int(864e11)
 

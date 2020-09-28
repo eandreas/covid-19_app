@@ -26,13 +26,15 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 df = get_data()
 df_bag_test = get_BAG_test_data()
 df_bag_report = get_BAG_report_data()
-df, df_bag_test = stretch_data_frames([df, df_bag_test])
+df, df_bag_test, df_bag_report = stretch_data_frames([df, df_bag_test, df_bag_report])
 
 fig_new_conf = fc.get_daily_new_conf_bars_only(df)
 fig_new_conf_zoomed = fc.get_daly_new_conf(df, df_bag_test)
 fig_tests_zoomed = fc.get_pcr_tests(df_bag_test)
 fig_hosp_zoomed = fc.get_hospitalizations(df)
 fig_pand_prog = fc.get_pand_prog(df)
+
+fig_bag_new_conf = fc.get_daily_new_conf_aei(df, df_bag_report)
 
 #fig_map = fc.get_map_figure()
 
@@ -80,6 +82,24 @@ TIME_WINDOW_SELECTION = dbc.Card(
             ]
         ),
     ]
+)
+
+BAG_CONF = dbc.Card(
+    [
+        dbc.CardHeader("Tägliche Fallzahlen - OpenZH versus BAG"),
+        dbc.CardBody(
+            [
+                dcc.Graph(
+                    id="new_conf_bag",
+                    figure=fig_bag_new_conf,
+                    config={
+                        'displayModeBar': False,
+                        #'staticPlot': True
+                    }
+                )
+            ]
+        ),
+    ], className="mt-3"
 )
 
 NEWLY_CONFIRMED_CASES = dbc.Card(
@@ -157,6 +177,7 @@ HOSPITALIZATIONS = dbc.Card(
 BODY = dbc.Container(
     [
         TIME_WINDOW_SELECTION,
+        BAG_CONF,
         #MAP,
         NEWLY_CONFIRMED_CASES,
         TESTS_AND_POSITIVITY_RATE,
