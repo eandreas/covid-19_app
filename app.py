@@ -4,13 +4,14 @@ import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import plotly.express as px
 import plotly.subplots as spl
 import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime as dt
 from dataloader import get_data, get_BAG_report_data, get_BAG_test_data, stretch_data_frames, download_BAG_test_data
+import bag_data_loader as bdl
 from colors import *
 from constants import CANTONS, DAY_IN_NS
 from tools import *
@@ -26,6 +27,7 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 df = get_data()
 df_bag_test = get_BAG_test_data()
 df_bag_report = get_BAG_report_data()
+df_bag_cases_latest = bdl.load_data()
 df, df_bag_test, df_bag_report = stretch_data_frames([df, df_bag_test, df_bag_report])
 
 fig_new_conf = fc.get_daily_new_conf_bars_only(df)
@@ -39,7 +41,7 @@ fig_bag_new_conf = fc.get_daily_new_conf_aei(df, df_bag_report)
 #fig_map = fc.get_map_figure()
 
 NAVBAR = dbc.NavbarSimple(
-    brand="COVID-19 Pandemic - Switzerland",
+    brand="COVID-19-Pandemie - Schweiz",
     brand_href="#",
     color="primary",
     dark=True,
@@ -174,9 +176,85 @@ HOSPITALIZATIONS = dbc.Card(
     ], className="mt-3"
 ) """
 
+table_header = [
+    html.Thead(html.Tr([html.Th("First Name"), html.Th("Last Name")]))
+]
+
+
+# ----- Table tests -----------
+
+ACCORDION = html.Div([
+    dbc.CardHeader(
+            dbc.Button(
+                "Why should I buy reheated pizza for $99?",
+                color="link",
+                id="button-question-1",
+            )
+    ),
+    dbc.Collapse(
+        dbc.CardBody("Because it's a lot better than a hotdog."),
+        id="collapse-question-1", is_open=False
+    ),
+
+    dbc.CardHeader(
+            dbc.Button(
+                "Does it have extra cheese?",
+                color="link",
+                id="button-question-2",
+            )
+    ),
+    dbc.Collapse(
+        dbc.CardBody("Yes, and it is made from the goats of Antarctica, which keeps the cheese cold and fresh."),
+        id="collapse-question-2", is_open=False
+    ),
+], className="mt-3")
+
+@app.callback(
+    Output("collapse-question-1", "is_open"),
+    [Input("button-question-1", "n_clicks")],
+    [State("collapse-question-1", "is_open")],
+)
+def toggle_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+
+@app.callback(
+    Output("collapse-question-2", "is_open"),
+    [Input("button-question-2", "n_clicks")],
+    [State("collapse-question-2", "is_open")],
+)
+def toggle_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+df_table = pd.DataFrame(
+    {
+        "First Name": ["Arthur", "Ford", "Zaphod", "Trillian"],
+        "Last Name": ["Dent", "Prefect", "Beeblebrox", "Astra"],
+    }
+)
+
+TABLE = dbc.Table.from_dataframe(
+    df_table,
+    #bordered=True,
+    #dark=True,
+    #hover=True,
+    #responsive=True,
+    striped=True,
+    className="mt-3")
+
+# -------------------
+
+
+
 BODY = dbc.Container(
     [
         TIME_WINDOW_SELECTION,
+        ACCORDION,
+        TABLE,
         BAG_CONF,
         #MAP,
         NEWLY_CONFIRMED_CASES,
@@ -208,7 +286,7 @@ def update_figure(date_range_slider):
     fig_new_conf.update_traces(marker_color=cols)
     return fig_new_conf
 
-@app.callback(
+""" @app.callback(
     [
         Output("new_conf_zoomed", "figure"),
         Output("tests_zoomed", "figure"),
@@ -239,7 +317,7 @@ def update_zoomed_figure(date_range_slider):
     fig_hosp_zoomed = fc.get_hospitalizations(df_zoomed)
     fig_hosp_zoomed.update_layout(transition_duration=500)
 
-    return fig_new_conf_zoomed, fig_tests_zoomed, fig_hosp_zoomed
+    return fig_new_conf_zoomed, fig_tests_zoomed, fig_hosp_zoomed """
 
 if __name__ == '__main__':
     # True for hot reloading
